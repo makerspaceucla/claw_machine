@@ -1,24 +1,25 @@
-//This version is applied to the Creality 1.1.5 Board
-//1.1.5 Board has 1/16 Microstepping on on all motors
+//Last Edit by Tim Norris 3/3/25
+//This version is applied to the RAMBo 1.3L Board
 
 #include <AccelStepper.h>
 #include <Servo.h>
 
 // Define stepper motor connections and motor interface type
-#define XYZEN 14  //Enable Pin for all motors, High = off
-#define ZEN 26    //Enable Pin for Z Stepper Driver, High = off
-#define XPUL 3   // X Pulse pin
-#define XDIR 2   // X Direction pin
-#define YPUL 22   // Y Pulse pin
-#define YDIR 23   // Y Direction pin
-#define ZPUL 0    // Z Pulse pin
-#define ZDIR 1    // Z Direction pin
-#define UP 18     // Up Joystick Pin (X-Stop Connector)
-#define DN 19     // Down Joystick Pin (Y-Stop Connector)
-#define LT 20     // Left Joystick Pin (Z-Stop Connector)
-#define RT 25     // Right Joystick Pin (B-Mot Connector)
-#define CLAW 24   // Claw Button Pin (ETemp Connector)
-#define SERVO_PIN 4  // Servo control pin (PWM-capable) (Fan Connector)
+#define XEN 29    //Enable Pin for X Stepper Driver, High = off
+#define YEN 28    //Enable Pin for Y Stepper Driver, High = off
+#define ZEN 27    //Enable Pin for Z Stepper Driver, High = off
+#define XPUL 37   // X Pulse/Step pin
+#define XDIR 48   // X Direction pin
+#define YPUL 36   // Y Pulse/Step pin
+#define YDIR 49   // Y Direction pin
+#define ZPUL 35   // Z Pulse/Step pin
+#define ZDIR 47   // Z Direction pin
+#define UP 45     // Up Joystick Pin (MX2 - Pin 5)
+#define DN 31     // Down Joystick Pin (MX2 - Pin 4)
+#define LT 46     // Left Joystick Pin (MX3 - Pin 5)
+#define RT 30     // Right Joystick Pin (MX3 - Pin 4)
+#define CLAW 23   // Claw Button Pin (MX2 - Pin 3)
+#define SERVO_PIN 44  // Servo control pin (MX1 - Pin 5) (PWM-Capable)
 
 // Define motor interface type
 #define MotorInterfaceType 1  // 1 = Driver with Step and Direction pins
@@ -52,10 +53,11 @@ void setup() {
   pinMode(LT, INPUT_PULLUP);
   pinMode(RT, INPUT_PULLUP);
   pinMode(CLAW, INPUT_PULLUP);
-  pinMode(XYZEN, OUTPUT);
+  pinMode(XEN, OUTPUT);
+  pinMode(YEN, OUTPUT);
   pinMode(ZEN, OUTPUT);
 
-  digitalWrite(ZEN, LOW);
+  //digitalWrite(ZEN, LOW);
 
   // Initialize the servo
   claw_servo.attach(SERVO_PIN);
@@ -81,6 +83,10 @@ void setup() {
   stepperZ.setAcceleration(zAcceleration);
   stepperZ.setCurrentPosition(0);
 
+  digitalWrite(XEN, LOW);
+  digitalWrite(YEN, LOW);
+  digitalWrite(ZEN, LOW);
+
   Serial.println("Setup complete");
 }
 
@@ -93,28 +99,36 @@ void loop() {
 
   // Movement increment per joystick input
   int joystickIncrement = 1;  // Adjust for sensitivity
+  //int timer = 0;
 
   // X-axis control
   if (ltPressed) {
-    Serial.println("Going Left");
+    //Serial.println("Going Left");
     xTarget -= joystickIncrement;
+    //timer = 0;
   }
   if (rtPressed) {
+    //Serial.println("Going Right");
     xTarget += joystickIncrement;
+    //timer = 0;
   }
   // Enforce X-axis limits
   if (xTarget < X_MIN) xTarget = X_MIN;
   if (xTarget > X_MAX) xTarget = X_MAX;
 
-  Serial.println(xTarget);
+  //Serial.println(xTarget);
   stepperX.moveTo(xTarget);
 
   // Y-axis control
   if (upPressed) {
+    //Serial.println("Going Up");
     yTarget += joystickIncrement;
+    //timer = 0;
   }
   if (dnPressed) {
+    //Serial.println("Going Down");
     yTarget -= joystickIncrement;
+    //timer = 0;
   }
   // Enforce Y-axis limits
   if (yTarget < Y_MIN) yTarget = Y_MIN;
@@ -125,6 +139,11 @@ void loop() {
   // Run the steppers to execute movement
   stepperX.run();
   stepperY.run();
+  // timer++;
+  // if(timer == 10000){
+
+  // }
+  //Serial.println(timer);
   delay(delayMil);
   
   // Claw operation
