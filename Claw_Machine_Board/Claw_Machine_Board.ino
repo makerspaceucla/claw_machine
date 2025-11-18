@@ -22,7 +22,7 @@ static inline void digiWrite(uint8_t channel, uint8_t value) {
 
 // Adjust these to taste; start cool, nudge up if you get skips
 #define DIGI_X   90
-#define DIGI_Y   90
+#define DIGI_Y   130
 #define DIGI_Z   90
 #define DIGI_E0  90
 #define DIGI_E1  90
